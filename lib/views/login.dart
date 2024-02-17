@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/main.dart';
+import 'package:mynotes/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -84,8 +86,19 @@ class _LoginViewState extends State<LoginView> {
                       .pushNamedAndRemoveUntil(notesRoute, (route) => false);
                 } on FirebaseAuthException catch (e) {
                   if (e.code == 'invalid-credential') {
-                    devtools.log('Incorrect Username or Password');
+                    // ignore: use_build_context_synchronously
+                    await showErrorDialog(context, 'Incorrect Username or Password');
                   }
+                  else{
+                    // ignore: use_build_context_synchronously
+                    await showErrorDialog(
+                        context, 'Error: ${e.code}');
+                  }
+                }
+                catch (e)
+                {
+                  // ignore: use_build_context_synchronously
+                  await showErrorDialog(context, e.toString());
                 }
               },
               style: ButtonStyle(
