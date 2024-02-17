@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -79,17 +80,26 @@ class _RegisterViewState extends State<RegisterView> {
                 final password = _password.text;
                 devtools.log('$email $password');
                 try {
-                  final userCredential = await FirebaseAuth.instance
-                      .createUserWithEmailAndPassword(
-                          email: email, password: password);
-                  devtools.log(userCredential.toString());
+                  await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                      email: email, password: password);
+                  //send email verification to the registered user
+                  await FirebaseAuth.instance.currentUser
+                      ?.sendEmailVerification();
+                      // ignore: use_build_context_synchronously
+                      Navigator.of(context).pushNamed(verifyEmailRoute);
                 } on FirebaseAuthException catch (e) {
                   if (e.code == 'email-already-in-use') {
-                    devtools.log("Sorry the email is already taken");
+                    // ignore: use_build_context_synchronously
+                    await showErrorDialog(
+                        context, "Sorry the email is already taken");
                   } else if (e.code == 'weak-password') {
-                    devtools.log('The entered password is very weak');
+                    // ignore: use_build_context_synchronously
+                    await showErrorDialog(
+                        context, 'The entered password is very weak');
                   } else if (e.code == 'invalid-email') {
-                    devtools.log("Please enter a valid email address");
+                    // ignore: use_build_context_synchronously
+                    await showErrorDialog(
+                        context, "Please enter a valid email address");
                   }
                 }
               },

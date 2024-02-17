@@ -12,7 +12,7 @@ Future<void> showErrorDialog(BuildContext context, String text) {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("OK"),
+              child: const Text("OK"),
             ),
           ],
         );

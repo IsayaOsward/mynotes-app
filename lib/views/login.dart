@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
 import 'package:mynotes/constants/routes.dart';
-import 'package:mynotes/main.dart';
 import 'package:mynotes/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -79,24 +77,30 @@ class _LoginViewState extends State<LoginView> {
                 final email = _email.text;
                 final password = _password.text;
                 try {
-                  await FirebaseAuth.instance.signInWithEmailAndPassword(
-                      email: email, password: password);
+                  await FirebaseAuth.instance
+                      .signInWithEmailAndPassword(
+                          email: email, password: password);
                   // ignore: use_build_context_synchronously
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(notesRoute, (route) => false);
+                  if (FirebaseAuth.instance.currentUser?.emailVerified ??
+                      false) {
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil(notesRoute, (route) => false);
+                  }
+                  else{
+                    await showErrorDialog(context, "Please verify your email first to use your account");
+                    await FirebaseAuth.instance.currentUser?.sendEmailVerification();
+                    Navigator.of(context).pushNamed(verifyEmailRoute);
+                  }
                 } on FirebaseAuthException catch (e) {
                   if (e.code == 'invalid-credential') {
                     // ignore: use_build_context_synchronously
-                    await showErrorDialog(context, 'Incorrect Username or Password');
-                  }
-                  else{
-                    // ignore: use_build_context_synchronously
                     await showErrorDialog(
-                        context, 'Error: ${e.code}');
+                        context, 'Incorrect Username or Password');
+                  } else {
+                    // ignore: use_build_context_synchronously
+                    await showErrorDialog(context, 'Error: ${e.code}');
                   }
-                }
-                catch (e)
-                {
+                } catch (e) {
                   // ignore: use_build_context_synchronously
                   await showErrorDialog(context, e.toString());
                 }
