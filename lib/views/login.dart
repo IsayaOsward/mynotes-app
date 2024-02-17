@@ -83,13 +83,16 @@ class _LoginViewState extends State<LoginView> {
                   // ignore: use_build_context_synchronously
                   if (FirebaseAuth.instance.currentUser?.emailVerified ??
                       false) {
+                    // ignore: use_build_context_synchronously
                     Navigator.of(context)
                         .pushNamedAndRemoveUntil(notesRoute, (route) => false);
                   }
                   else{
-                    await showErrorDialog(context, "Please verify your email first to use your account");
+                    // ignore: use_build_context_synchronously
+                    await showErrorDialog(context, "Email not verified! \n Please verify your email first to use your account");
                     await FirebaseAuth.instance.currentUser?.sendEmailVerification();
-                    Navigator.of(context).pushNamed(verifyEmailRoute);
+                    // ignore: use_build_context_synchronously
+                    Navigator.of(context).pushNamedAndRemoveUntil(verifyEmailRoute, (route) => false);
                   }
                 } on FirebaseAuthException catch (e) {
                   if (e.code == 'invalid-credential') {
