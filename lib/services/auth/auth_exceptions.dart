@@ -2,7 +2,8 @@
 class WrongPasswordAuthException implements Exception {}
 
 //register exceptions
-class WeakPasswordAuthException implements Exception {}
+class WeakPasswordAuthException implements Exception {
+}
 
 class EmailExistAuthException implements Exception {}
 

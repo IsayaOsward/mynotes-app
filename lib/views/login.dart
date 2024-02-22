@@ -1,6 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/services/auth/auth_exceptions.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -77,35 +78,30 @@ class _LoginViewState extends State<LoginView> {
                 final email = _email.text;
                 final password = _password.text;
                 try {
-                  await FirebaseAuth.instance
-                      .signInWithEmailAndPassword(
-                          email: email, password: password);
+                  await AuthService.firebase().logIn(
+                    email: email,
+                    password: password,
+                  );
                   // ignore: use_build_context_synchronously
-                  if (FirebaseAuth.instance.currentUser?.emailVerified ??
+                  if (AuthService.firebase().currentUser?.isEmailVerified ??
                       false) {
                     // ignore: use_build_context_synchronously
                     Navigator.of(context)
                         .pushNamedAndRemoveUntil(notesRoute, (route) => false);
-                  }
-                  else{
-                    // ignore: use_build_context_synchronously
-                    await showErrorDialog(context, "Email not verified! \n Please verify your email first to use your account");
-                    await FirebaseAuth.instance.currentUser?.sendEmailVerification();
-                    // ignore: use_build_context_synchronously
-                    Navigator.of(context).pushNamedAndRemoveUntil(verifyEmailRoute, (route) => false);
-                  }
-                } on FirebaseAuthException catch (e) {
-                  if (e.code == 'invalid-credential') {
-                    // ignore: use_build_context_synchronously
-                    await showErrorDialog(
-                        context, 'Incorrect Username or Password');
                   } else {
                     // ignore: use_build_context_synchronously
-                    await showErrorDialog(context, 'Error: ${e.code}');
+                    await showErrorDialog(context,
+                        "Email not verified! \n Please verify your email first to use your account");
+                    await AuthService.firebase().sendEmailVerification();
+                    // ignore: use_build_context_synchronously
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        verifyEmailRoute, (route) => false);
                   }
-                } catch (e) {
-                  // ignore: use_build_context_synchronously
-                  await showErrorDialog(context, e.toString());
+                } on WrongPasswordAuthException {
+                  await showErrorDialog(
+                      context, 'Incorrect Username or Password');
+                } on GenericAuthException {
+                  await showErrorDialog(context, 'Authentication Error!');
                 }
               },
               style: ButtonStyle(
