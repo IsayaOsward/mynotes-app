@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mynotes/constants/colors.dart';
 import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/views/login.dart';
@@ -10,9 +11,9 @@ void main() {
   runApp(MaterialApp(
     title: 'Flutter Demo',
     theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      colorScheme: ColorScheme.fromSeed(seedColor: blue),
       useMaterial3: true,
-      appBarTheme: const AppBarTheme(color: Colors.blue),
+      appBarTheme: const AppBarTheme(color: blue),
     ),
     home: const HomePage(),
     routes: {
